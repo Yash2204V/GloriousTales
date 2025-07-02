@@ -4,7 +4,6 @@ import HomePage from '@/pages/HomePage';
 import StoriesPage from '@/pages/StoriesPage';
 import StoryDetailPage from '@/pages/StoryDetailPage';
 import AboutPage from '@/pages/AboutPage';
-import './App.css';
 
 function App() {
   return (
