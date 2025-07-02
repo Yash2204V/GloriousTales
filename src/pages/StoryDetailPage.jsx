@@ -33,8 +33,8 @@ const StoryDetailPage = () => {
       <div className="min-h-screen">
         <Navigation />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Story Not Found</h1>
-          <p className="text-gray-600 mb-8">The story you're looking for doesn't exist.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 dark:text-white">Story Not Found</h1>
+          <p className="text-gray-600 mb-8 dark:text-gray-300">The story you're looking for doesn't exist.</p>
           <Link to="/stories">
             <Button className="bg-orange-600 hover:bg-orange-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -62,7 +62,7 @@ const StoryDetailPage = () => {
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
-        <Link to="/stories" className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 mb-6">
+        <Link to="/stories" className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 mb-6 dark:text-orange-400 dark:hover:text-orange-300">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Stories</span>
         </Link>
@@ -96,13 +96,13 @@ const StoryDetailPage = () => {
 
           {/* Historical Context */}
           {story.historicalContext && (
-            <Card className="mb-6 bg-gradient-to-r from-orange-50 to-yellow-50">
+            <Card className="mb-6 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
               <CardContent className="p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
-                  <Scroll className="h-5 w-5 mr-2 text-orange-600" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center dark:text-white">
+                  <Scroll className="h-5 w-5 mr-2 text-orange-600 dark:text-orange-400" />
                   Historical Context
                 </h3>
-                <p className="text-gray-700 leading-relaxed italic">
+                <p className="text-gray-700 leading-relaxed italic dark:text-gray-300">
                   {story.historicalContext}
                 </p>
               </CardContent>
@@ -113,23 +113,23 @@ const StoryDetailPage = () => {
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Story Details</h3>
+                <h3 className="font-semibold text-gray-900 mb-4 dark:text-white">Story Details</h3>
                 <div className="space-y-3">
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-200">
                     <Calendar className="h-4 w-4" />
                     <span>{story.birthYear} - {story.deathYear}</span>
                     <span className="text-gray-400">•</span>
                     <span>{era?.period}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-200">
                     <MapPin className="h-4 w-4" />
                     <span>{region?.label}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-200">
                     <User className="h-4 w-4" />
                     <span className="capitalize">{story.gender}</span>
                   </div>
-                  <div className="flex items-center space-x-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-200">
                     <Clock className="h-4 w-4" />
                     <span>{story.readingTime} read</span>
                     {story.listeningTime && (
@@ -140,7 +140,7 @@ const StoryDetailPage = () => {
                     )}
                   </div>
                   {story.voiceNarrationStyle && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-200">
                       <Headphones className="h-4 w-4" />
                       <span className="text-xs">{story.voiceNarrationStyle}</span>
                     </div>
@@ -151,21 +151,21 @@ const StoryDetailPage = () => {
 
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold text-gray-900 mb-4">Life Conditions</h3>
+                <h3 className="font-semibold text-gray-900 mb-4 dark:text-white">Life Conditions</h3>
                 <div className="space-y-2">
                   {storyConditions.map(condition => (
                     <div key={condition.id} className="flex items-center space-x-2 text-sm">
                       <span className="text-lg">{condition.icon}</span>
                       <div>
-                        <span className="text-gray-700 font-medium">{condition.label}</span>
+                        <span className="text-gray-700 font-medium dark:text-gray-300">{condition.label}</span>
                         {condition.description && (
-                          <p className="text-xs text-gray-500">{condition.description}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{condition.description}</p>
                         )}
                       </div>
                     </div>
                   ))}
                   {storyConditions.length === 0 && (
-                    <p className="text-sm text-gray-500">No specific hardships documented.</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No specific hardships documented.</p>
                   )}
                 </div>
               </CardContent>
@@ -185,13 +185,13 @@ const StoryDetailPage = () => {
             <Button
               size="lg"
               variant="outline"
-              className="border-orange-600 text-orange-600 hover:bg-orange-50 flex-1 sm:flex-none"
+              className="border-orange-600 text-orange-600 hover:bg-orange-50 flex-1 sm:flex-none dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20"
               onClick={handleListenMode}
             >
               <Headphones className="h-5 w-5 mr-2" />
               Listen Story
             </Button>
-            <Button size="lg" variant="outline" className="flex-1 sm:flex-none">
+            <Button size="lg" variant="outline" className="flex-1 sm:flex-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
               <Share2 className="h-5 w-5 mr-2" />
               Share
             </Button>
@@ -214,9 +214,9 @@ const StoryDetailPage = () => {
           <TabsContent value="read" className="mt-8">
             <div className="prose prose-lg max-w-none">
               <div className="mb-8">
-                <p className="text-xl text-gray-700 leading-relaxed italic">
-                  {story.description}
-                </p>
+                              <p className="text-xl text-gray-700 leading-relaxed italic dark:text-gray-300">
+                {story.description}
+              </p>
               </div>
 
               {story.chapters.map((chapter, index) => (
@@ -226,9 +226,9 @@ const StoryDetailPage = () => {
                       <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
                         {index + 1}
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-900">{chapter.title}</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{chapter.title}</h2>
                       {chapter.emotionalTone && (
-                        <Badge variant="outline" className="text-xs text-orange-600">
+                        <Badge variant="outline" className="text-xs text-orange-600 dark:text-orange-400 dark:border-orange-400">
                           {chapter.emotionalTone}
                         </Badge>
                       )}
@@ -236,15 +236,15 @@ const StoryDetailPage = () => {
                     
                     <div className="space-y-4">
                       {chapter.content.split('\n\n').map((paragraph, idx) => (
-                        <p key={idx} className="text-gray-700 leading-relaxed">
+                        <p key={idx} className="text-gray-700 leading-relaxed dark:text-gray-300">
                           {paragraph}
                         </p>
                       ))}
                     </div>
                     
                     {chapter.annotation && (
-                      <div className="mt-6 p-4 bg-orange-50 border-l-4 border-orange-600 rounded-r-lg">
-                        <p className="text-sm text-orange-800 italic">
+                      <div className="mt-6 p-4 bg-orange-50 border-l-4 border-orange-600 rounded-r-lg dark:bg-orange-900/20 dark:border-orange-400">
+                        <p className="text-sm text-orange-800 italic dark:text-orange-200">
                           <strong>Historical Context:</strong> {chapter.annotation}
                         </p>
                       </div>
@@ -255,17 +255,17 @@ const StoryDetailPage = () => {
 
               {/* Quotes Section */}
               {story.quotes && story.quotes.length > 0 && (
-                <Card className="mb-8 bg-gradient-to-br from-orange-50 to-yellow-50">
+                <Card className="mb-8 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
                   <CardContent className="p-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                      <Quote className="h-6 w-6 mr-2 text-orange-600" />
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center dark:text-white">
+                      <Quote className="h-6 w-6 mr-2 text-orange-600 dark:text-orange-400" />
                       Memorable Quotes
                     </h3>
                     <div className="space-y-4">
                       {story.quotes.map((quote, index) => (
-                        <blockquote key={index} className="border-l-4 border-orange-600 pl-4">
-                          <p className="text-lg text-gray-800 italic">"{quote}"</p>
-                          <footer className="text-sm text-orange-600 mt-2">— {story.title}</footer>
+                        <blockquote key={index} className="border-l-4 border-orange-600 pl-4 dark:border-orange-400">
+                          <p className="text-lg text-gray-800 italic dark:text-gray-200">"{quote}"</p>
+                          <footer className="text-sm text-orange-600 mt-2 dark:text-orange-400">— {story.title}</footer>
                         </blockquote>
                       ))}
                     </div>
@@ -276,21 +276,21 @@ const StoryDetailPage = () => {
               {/* Legacy Section */}
               <Card className="mb-8">
                 <CardContent className="p-8">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center dark:text-white">
                     <Heart className="h-6 w-6 mr-2 text-red-500" />
                     Legacy & Impact
                   </h3>
-                  <p className="text-gray-700 leading-relaxed mb-4">
+                  <p className="text-gray-700 leading-relaxed mb-4 dark:text-gray-300">
                     {story.legacy}
                   </p>
                   
                   {story.modernRelevance && (
-                    <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 rounded-r-lg">
-                      <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+                    <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 rounded-r-lg dark:bg-blue-900/20 dark:border-blue-400">
+                      <h4 className="font-semibold text-blue-900 mb-2 flex items-center dark:text-blue-200">
                         <Globe className="h-4 w-4 mr-2" />
                         Modern Relevance
                       </h4>
-                      <p className="text-blue-800 text-sm">
+                      <p className="text-blue-800 text-sm dark:text-blue-200">
                         {story.modernRelevance}
                       </p>
                     </div>
@@ -305,12 +305,12 @@ const StoryDetailPage = () => {
               <CardContent className="p-8 text-center">
                 <div className="mb-6">
                   <Headphones className="h-16 w-16 text-orange-600 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">Audio Experience</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2 dark:text-white">Audio Experience</h3>
+                  <p className="text-gray-600 dark:text-gray-300">
                     Listen to this story with immersive narration and background music.
                   </p>
                   {story.voiceNarrationStyle && (
-                    <p className="text-sm text-orange-600 mt-2 italic">
+                    <p className="text-sm text-orange-600 mt-2 italic dark:text-orange-400">
                       Voice Style: {story.voiceNarrationStyle}
                     </p>
                   )}
@@ -326,17 +326,17 @@ const StoryDetailPage = () => {
                       <Headphones className="h-5 w-5 mr-2" />
                       Start Listening
                     </Button>
-                    <p className="text-sm text-gray-500 mt-2">
+                    <p className="text-sm text-gray-500 mt-2 dark:text-gray-400">
                       Duration: {story.listeningTime}
                     </p>
                   </div>
                 ) : (
-                  <div className="bg-orange-50 p-6 rounded-lg">
-                    <p className="text-orange-800 mb-4">
+                  <div className="bg-orange-50 p-6 rounded-lg dark:bg-orange-900/20">
+                    <p className="text-orange-800 mb-4 dark:text-orange-200">
                       Audio version coming soon! We're working on creating an immersive audio experience 
                       with authentic Indian classical music and professional narration.
                     </p>
-                    <div className="text-sm text-orange-700 mb-4">
+                    <div className="text-sm text-orange-700 mb-4 dark:text-orange-300">
                       <p><strong>Planned Audio Features:</strong></p>
                       <ul className="list-disc list-inside mt-2 space-y-1">
                         <li>Human-like emotional narration</li>
@@ -347,7 +347,7 @@ const StoryDetailPage = () => {
                     </div>
                     <Button
                       variant="outline"
-                      className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                      className="border-orange-600 text-orange-600 hover:bg-orange-50 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20"
                       onClick={() => setActiveTab('read')}
                     >
                       <BookOpen className="h-4 w-4 mr-2" />

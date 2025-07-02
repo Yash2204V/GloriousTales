@@ -103,7 +103,7 @@ const FilterPanel = ({ filters, onFiltersChange, onClearFilters }) => {
                   {type.description && (
                     <div className="group relative">
                       <Info className="h-3 w-3 text-gray-400 cursor-help" />
-                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10">
+                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10 dark:bg-gray-700">
                         {type.description}
                       </div>
                     </div>
@@ -138,7 +138,7 @@ const FilterPanel = ({ filters, onFiltersChange, onClearFilters }) => {
                   {era.description && (
                     <div className="group relative">
                       <Info className="h-3 w-3 text-gray-400 cursor-help" />
-                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10">
+                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10 dark:bg-gray-700">
                         {era.description}
                       </div>
                     </div>
@@ -173,7 +173,7 @@ const FilterPanel = ({ filters, onFiltersChange, onClearFilters }) => {
                   {region.description && (
                     <div className="group relative">
                       <Info className="h-3 w-3 text-gray-400 cursor-help" />
-                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10">
+                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10 dark:bg-gray-700">
                         {region.description}
                       </div>
                     </div>
@@ -218,7 +218,7 @@ const FilterPanel = ({ filters, onFiltersChange, onClearFilters }) => {
             <ChevronDown className={`h-4 w-4 transition-transform ${openSections.conditions ? 'rotate-180' : ''}`} />
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 space-y-2">
-            <div className="text-xs text-gray-500 mb-2 italic">
+            <div className="text-xs text-gray-500 mb-2 italic dark:text-gray-400">
               Raw visibility to their hidden struggles
             </div>
             {conditions.map(condition => (
@@ -233,7 +233,7 @@ const FilterPanel = ({ filters, onFiltersChange, onClearFilters }) => {
                   {condition.description && (
                     <div className="group relative">
                       <Info className="h-3 w-3 text-gray-400 cursor-help" />
-                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10">
+                      <div className="absolute left-0 top-5 hidden group-hover:block bg-gray-800 text-white text-xs p-2 rounded w-48 z-10 dark:bg-gray-700">
                         {condition.description}
                       </div>
                     </div>

@@ -7,9 +7,9 @@ import AboutPage from '@/pages/AboutPage';
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="glorious-tales-theme">
+    <ThemeProvider defaultTheme="system" storageKey="glorious-tales-theme">
       <Router>
-        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
+        <div className="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/stories" element={<StoriesPage />} />

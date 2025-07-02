@@ -107,15 +107,15 @@ const AudioPlayer = ({ story, isVisible }) => {
           </div>
           
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-medium text-gray-900 truncate">
+            <h4 className="text-sm font-medium text-gray-900 truncate dark:text-white">
               {story.title}
             </h4>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-gray-500 truncate dark:text-gray-400">
               {story.subtitle}
             </p>
             
             <div className="flex items-center space-x-2 mt-2">
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {formatTime(currentTime)}
               </span>
               <Slider
@@ -125,7 +125,7 @@ const AudioPlayer = ({ story, isVisible }) => {
                 onValueChange={handleSeek}
                 className="flex-1"
               />
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-gray-500 dark:text-gray-400">
                 {formatTime(duration)}
               </span>
             </div>

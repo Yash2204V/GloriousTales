@@ -13,7 +13,7 @@ const StoryCard = ({ story, featured = false }) => {
   return (
     <Link to={`/story/${story.id}`} className="block group">
       <Card className={`overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
-        featured ? 'ring-2 ring-orange-200' : ''
+        featured ? 'ring-2 ring-orange-200 dark:ring-orange-800' : ''
       }`}>
         <div className="relative">
           <div className="aspect-[4/3] overflow-hidden">
@@ -32,7 +32,7 @@ const StoryCard = ({ story, featured = false }) => {
             </div>
           )}
           <div className="absolute bottom-3 left-3">
-            <Badge variant="secondary" className="bg-white/90 text-gray-800">
+            <Badge variant="secondary" className="bg-white/90 text-gray-800 dark:bg-gray-800/90 dark:text-gray-200">
               {heroType?.icon} {heroType?.label}
             </Badge>
           </div>
@@ -49,13 +49,13 @@ const StoryCard = ({ story, featured = false }) => {
         <CardContent className="p-6">
           <div className="space-y-3">
             <div>
-              <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors">
-                {story.title}
-              </h3>
-              <p className="text-sm text-orange-600 font-medium">{story.subtitle}</p>
+                          <h3 className="text-xl font-bold text-gray-900 group-hover:text-orange-700 transition-colors dark:text-white dark:group-hover:text-orange-400">
+              {story.title}
+            </h3>
+            <p className="text-sm text-orange-600 font-medium dark:text-orange-400">{story.subtitle}</p>
             </div>
             
-            <p className="text-gray-700 text-sm leading-relaxed line-clamp-3">
+            <p className="text-gray-700 text-sm leading-relaxed line-clamp-3 dark:text-gray-300">
               {story.description}
             </p>
             
@@ -72,7 +72,7 @@ const StoryCard = ({ story, featured = false }) => {
               )}
             </div>
             
-            <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100">
+            <div className="flex items-center justify-between text-xs text-gray-500 pt-2 border-t border-gray-100 dark:text-gray-400 dark:border-gray-700">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-1">
                   <Calendar className="h-3 w-3" />

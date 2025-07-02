@@ -71,8 +71,8 @@ const StoriesPage = () => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">All Stories</h1>
-          <p className="text-lg text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 dark:text-white">All Stories</h1>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
             Discover the authentic tales of India's greatest heroes and their incredible journeys.
           </p>
         </div>
@@ -119,7 +119,7 @@ const StoriesPage = () => {
 
         {/* Results Info */}
         <div className="mb-6">
-          <p className="text-gray-600">
+          <p className="text-gray-600 dark:text-gray-300">
             Showing {filteredStories.length} of {stories.length} stories
             {searchTerm && (
               <span className="ml-1">
@@ -143,10 +143,10 @@ const StoriesPage = () => {
 
           {/* Mobile Filters */}
           {showFilters && (
-            <div className="md:hidden fixed inset-0 z-50 bg-white overflow-y-auto">
+            <div className="md:hidden fixed inset-0 z-50 bg-white overflow-y-auto dark:bg-gray-900">
               <div className="p-4">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-semibold">Filters</h2>
+                  <h2 className="text-lg font-semibold dark:text-white">Filters</h2>
                   <Button
                     variant="ghost"
                     onClick={() => setShowFilters(false)}
@@ -176,14 +176,14 @@ const StoriesPage = () => {
                 <div className="text-gray-400 mb-4">
                   <Search className="h-12 w-12 mx-auto" />
                 </div>
-                <h3 className="text-xl font-medium text-gray-900 mb-2">No stories found</h3>
-                <p className="text-gray-600 mb-4">
+                <h3 className="text-xl font-medium text-gray-900 mb-2 dark:text-white">No stories found</h3>
+                <p className="text-gray-600 mb-4 dark:text-gray-300">
                   Try adjusting your search terms or filters to find more stories.
                 </p>
                 <Button
                   variant="outline"
                   onClick={handleClearFilters}
-                  className="border-orange-600 text-orange-600 hover:bg-orange-50"
+                  className="border-orange-600 text-orange-600 hover:bg-orange-50 dark:border-orange-400 dark:text-orange-400 dark:hover:bg-orange-900/20"
                 >
                   Clear Filters
                 </Button>
