@@ -1,4 +1,5 @@
 import Navigation from '@/components/Navigation';
+import SuggestionForm from '@/components/SuggestionForm';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
@@ -288,6 +289,11 @@ const AboutPage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Suggestion Form */}
+        <div className="mb-12">
+          <SuggestionForm />
+        </div>
 
         {/* Call to Action */}
         <div className="text-center">

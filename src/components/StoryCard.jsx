@@ -1,17 +1,42 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Clock, User, Calendar, MapPin, Heart, Headphones } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Clock, User, Calendar, MapPin, Heart, Headphones, Share2, Check } from 'lucide-react';
 import { heroTypes, conditions, eras, regions } from '@/data/stories';
 
 const StoryCard = ({ story, featured = false }) => {
+  const [copied, setCopied] = useState(false);
   const heroType = heroTypes.find(type => type.id === story.heroType);
   const era = eras.find(e => e.id === story.era);
   const region = regions.find(r => r.id === story.region);
   const storyConditions = conditions.filter(c => story.conditions.includes(c.id));
 
+  const handleShare = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const url = `${window.location.origin}/story/${story.id}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
-    <Link to={`/story/${story.id}`} className="block group">
+    <Link to={`/stories/${story._id || story.id}`} className="block group">
       <Card className={`overflow-hidden transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
         featured ? 'ring-2 ring-orange-200 dark:ring-orange-800' : ''
       }`}>
@@ -23,14 +48,7 @@ const StoryCard = ({ story, featured = false }) => {
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
           </div>
-          {featured && (
-            <div className="absolute top-3 right-3">
-              <Badge className="bg-orange-600 text-white">
-                <Heart className="h-3 w-3 mr-1" />
-                Featured
-              </Badge>
-            </div>
-          )}
+
           <div className="absolute bottom-3 left-3">
             <Badge variant="secondary" className="bg-white/90 text-gray-800 dark:bg-gray-800/90 dark:text-gray-200">
               {heroType?.icon} {heroType?.label}
@@ -44,6 +62,34 @@ const StoryCard = ({ story, featured = false }) => {
               </Badge>
             </div>
           )}
+          <div className="absolute top-3 right-3 flex gap-2">
+            {featured && (
+              <Badge className="bg-orange-600 text-white">
+                <Heart className="h-3 w-3 mr-1" />
+                Featured
+              </Badge>
+            )}
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-6 px-2 bg-white/90 hover:bg-white text-gray-800 dark:bg-gray-800/90 dark:hover:bg-gray-800 dark:text-gray-200"
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                const url = `${window.location.origin}/stories/${story._id || story.id}`;
+                navigator.clipboard.writeText(url).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                });
+              }}
+            >
+              {copied ? (
+                <Check className="h-3 w-3" />
+              ) : (
+                <Share2 className="h-3 w-3" />
+              )}
+            </Button>
+          </div>
         </div>
         
         <CardContent className="p-6">

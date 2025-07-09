@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import AudioPlayer from '@/components/AudioPlayer';
+import CommentSection from '@/components/CommentSection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,23 +19,54 @@ import {
   Heart,
   Share2,
   Scroll,
-  Globe
+  Globe,
+  Copy,
+  Check
 } from 'lucide-react';
-import { getStoryById, heroTypes, conditions, eras, regions } from '@/data/stories';
+import { heroTypes, conditions, eras, regions } from '@/data/stories';
+import { storiesAPI } from '@/utils/api';
 
 const StoryDetailPage = () => {
   const { id } = useParams();
-  const story = getStoryById(id);
+  const [story, setStory] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('read');
   const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  if (!story) {
+  useEffect(() => {
+    const fetchStory = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await storiesAPI.getById(id);
+        setStory(res.story || null);
+      } catch (err) {
+        setError(err.message || 'Failed to load story');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStory();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen">
+        <Navigation />
+        <div className="max-w-4xl mx-auto px-4 py-16 text-center text-gray-400">Loading story...</div>
+      </div>
+    );
+  }
+
+  if (error || !story) {
     return (
       <div className="min-h-screen">
         <Navigation />
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-4 dark:text-white">Story Not Found</h1>
-          <p className="text-gray-600 mb-8 dark:text-gray-300">The story you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-8 dark:text-gray-300">{error || "The story you're looking for doesn't exist."}</p>
           <Link to="/stories">
             <Button className="bg-orange-600 hover:bg-orange-700">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -49,33 +81,50 @@ const StoryDetailPage = () => {
   const heroType = heroTypes.find(type => type.id === story.heroType);
   const era = eras.find(e => e.id === story.era);
   const region = regions.find(r => r.id === story.region);
-  const storyConditions = conditions.filter(c => story.conditions.includes(c.id));
+  const storyConditions = conditions.filter(c => (story.conditions || []).includes(c.id));
 
   const handleListenMode = () => {
     setActiveTab('listen');
     setShowAudioPlayer(true);
   };
 
+  const handleShare = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = url;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <Navigation />
-      
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
         <Link to="/stories" className="inline-flex items-center space-x-2 text-orange-600 hover:text-orange-700 mb-6 dark:text-orange-400 dark:hover:text-orange-300">
           <ArrowLeft className="h-4 w-4" />
           <span>Back to Stories</span>
         </Link>
-
         {/* Hero Section */}
         <div className="mb-8">
           <div className="relative rounded-2xl overflow-hidden mb-6">
-            <div className="aspect-[21/9] overflow-hidden">
+            <div className="aspect-auto overflow-hidden">
               <img
                 src={story.image}
                 alt={story.title}
-                className="w-full h-full object-cover"
-              />
+                className="w-full h-full object-contain"
+                />
             </div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
             <div className="absolute bottom-6 left-6 right-6 text-white">
@@ -93,7 +142,6 @@ const StoryDetailPage = () => {
               <p className="text-xl text-orange-200">{story.subtitle}</p>
             </div>
           </div>
-
           {/* Historical Context */}
           {story.historicalContext && (
             <Card className="mb-6 bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
@@ -108,7 +156,6 @@ const StoryDetailPage = () => {
               </CardContent>
             </Card>
           )}
-
           {/* Story Info */}
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             <Card>
@@ -148,7 +195,6 @@ const StoryDetailPage = () => {
                 </div>
               </CardContent>
             </Card>
-
             <Card>
               <CardContent className="p-6">
                 <h3 className="font-semibold text-gray-900 mb-4 dark:text-white">Life Conditions</h3>
@@ -171,7 +217,6 @@ const StoryDetailPage = () => {
               </CardContent>
             </Card>
           </div>
-
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-8">
             <Button
@@ -191,13 +236,26 @@ const StoryDetailPage = () => {
               <Headphones className="h-5 w-5 mr-2" />
               Listen Story
             </Button>
-            <Button size="lg" variant="outline" className="flex-1 sm:flex-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800">
-              <Share2 className="h-5 w-5 mr-2" />
-              Share
+            <Button 
+              size="lg" 
+              variant="outline" 
+              className="flex-1 sm:flex-none dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              onClick={handleShare}
+            >
+              {copied ? (
+                <>
+                  <Check className="h-5 w-5 mr-2" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Share2 className="h-5 w-5 mr-2" />
+                  Share
+                </>
+              )}
             </Button>
           </div>
         </div>
-
         {/* Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
@@ -210,17 +268,15 @@ const StoryDetailPage = () => {
               <span>Listen</span>
             </TabsTrigger>
           </TabsList>
-
           <TabsContent value="read" className="mt-8">
             <div className="prose prose-lg max-w-none">
               <div className="mb-8">
-                              <p className="text-xl text-gray-700 leading-relaxed italic dark:text-gray-300">
-                {story.description}
-              </p>
+                <p className="text-xl text-gray-700 leading-relaxed italic dark:text-gray-300">
+                  {story.description}
+                </p>
               </div>
-
-              {story.chapters.map((chapter, index) => (
-                <Card key={chapter.id} className="mb-8">
+              {(story.chapters || []).map((chapter, index) => (
+                <Card key={chapter.id || index} className="mb-8">
                   <CardContent className="p-8">
                     <div className="flex items-center space-x-3 mb-4">
                       <div className="w-8 h-8 bg-orange-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
@@ -233,7 +289,6 @@ const StoryDetailPage = () => {
                         </Badge>
                       )}
                     </div>
-                    
                     <div className="space-y-4">
                       {chapter.content.split('\n\n').map((paragraph, idx) => (
                         <p key={idx} className="text-gray-700 leading-relaxed dark:text-gray-300">
@@ -241,7 +296,6 @@ const StoryDetailPage = () => {
                         </p>
                       ))}
                     </div>
-                    
                     {chapter.annotation && (
                       <div className="mt-6 p-4 bg-orange-50 border-l-4 border-orange-600 rounded-r-lg dark:bg-orange-900/20 dark:border-orange-400">
                         <p className="text-sm text-orange-800 italic dark:text-orange-200">
@@ -252,7 +306,6 @@ const StoryDetailPage = () => {
                   </CardContent>
                 </Card>
               ))}
-
               {/* Quotes Section */}
               {story.quotes && story.quotes.length > 0 && (
                 <Card className="mb-8 bg-gradient-to-br from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20">
@@ -272,7 +325,6 @@ const StoryDetailPage = () => {
                   </CardContent>
                 </Card>
               )}
-
               {/* Legacy Section */}
               <Card className="mb-8">
                 <CardContent className="p-8">
@@ -283,7 +335,6 @@ const StoryDetailPage = () => {
                   <p className="text-gray-700 leading-relaxed mb-4 dark:text-gray-300">
                     {story.legacy}
                   </p>
-                  
                   {story.modernRelevance && (
                     <div className="mt-6 p-4 bg-blue-50 border-l-4 border-blue-600 rounded-r-lg dark:bg-blue-900/20 dark:border-blue-400">
                       <h4 className="font-semibold text-blue-900 mb-2 flex items-center dark:text-blue-200">
@@ -299,7 +350,6 @@ const StoryDetailPage = () => {
               </Card>
             </div>
           </TabsContent>
-
           <TabsContent value="listen" className="mt-8">
             <Card>
               <CardContent className="p-8 text-center">
@@ -315,7 +365,6 @@ const StoryDetailPage = () => {
                     </p>
                   )}
                 </div>
-                
                 {story.audioUrl ? (
                   <div>
                     <Button
@@ -360,7 +409,10 @@ const StoryDetailPage = () => {
           </TabsContent>
         </Tabs>
       </div>
-
+      {/* Comments Section */}
+      <div className="max-w-4xl mx-auto px-4 py-8">
+        <CommentSection storyId={story._id || story.id} />
+      </div>
       {/* Audio Player */}
       {showAudioPlayer && story.audioUrl && (
         <AudioPlayer

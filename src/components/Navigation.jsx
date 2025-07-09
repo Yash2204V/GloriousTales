@@ -51,7 +51,7 @@ const Navigation = () => {
             })}
             
             {/* Theme Toggle */}
-            <Button
+            {/* <Button
               variant="ghost"
               size="sm"
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
@@ -62,7 +62,7 @@ const Navigation = () => {
               ) : (
                 <Sun className="h-4 w-4" />
               )}
-            </Button>
+            </Button> */}
           </div>
 
           {/* Mobile menu button and theme toggle */}

@@ -1,14 +1,33 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Navigation from '@/components/Navigation';
 import StoryCard from '@/components/StoryCard';
+import SubscriptionForm from '@/components/SubscriptionForm';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Crown, Heart, Star, Users, BookOpen, Award, Scroll, Headphones } from 'lucide-react';
-import { getFeaturedStories, heroTypes } from '@/data/stories';
+import { heroTypes } from '@/data/stories';
+import { storiesAPI } from '@/utils/api';
 
 const HomePage = () => {
-  const featuredStories = getFeaturedStories();
+  const [featuredStories, setFeaturedStories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchFeaturedStories = async () => {
+      try {
+        const res = await storiesAPI.getFeatured();
+        setFeaturedStories(res.stories || []);
+      } catch (err) {
+        setError(err.message || 'Failed to load featured stories');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchFeaturedStories();
+  }, []);
 
   return (
     <div className="min-h-screen">
@@ -193,28 +212,25 @@ const HomePage = () => {
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {featuredStories.map((story) => (
-              <StoryCard key={story.id} story={story} featured={true} />
-            ))}
+            {loading ? (
+              <div className="col-span-3 text-center py-12 text-gray-400">Loading featured stories...</div>
+            ) : error ? (
+              <div className="col-span-3 text-center py-12 text-red-500">{error}</div>
+            ) : featuredStories.length > 0 ? (
+              featuredStories.map((story) => (
+                <StoryCard key={story._id || story.id} story={story} featured={true} />
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12 text-gray-400">No featured stories available</div>
+            )}
           </div>
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-16 px-4 bg-gradient-to-r from-orange-600 to-red-600 text-white">
+      {/* Subscription Section */}
+      <section className="py-16 px-4 bg-white dark:bg-gray-900">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            Ready to Walk with Legends?
-          </h2>
-          <p className="text-xl mb-8 opacity-90">
-            Let people walk with those who bled for truth, wrote in fire, and died unheard.
-          </p>
-          <Link to="/stories">
-            <Button size="lg" variant="secondary" className="bg-white text-orange-600 hover:bg-gray-100 px-8 py-3">
-              <Star className="h-5 w-5 mr-2" />
-              Begin Your Journey
-            </Button>
-          </Link>
+          <SubscriptionForm />
         </div>
       </section>
     </div>

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, X } from 'lucide-react';
-import { getFilteredStories, stories } from '@/data/stories';
+import { storiesAPI } from '@/utils/api';
 
 const StoriesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,12 +20,36 @@ const StoriesPage = () => {
     gender: searchParams.get('gender') || null,
     conditions: searchParams.get('conditions')?.split(',').filter(Boolean) || [],
   });
+  const [stories, setStories] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const filteredStories = getFilteredStories(filters).filter(story =>
-    story.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    story.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    story.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Fetch stories from API when filters or searchTerm change
+  useEffect(() => {
+    const fetchStories = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const params = {};
+        if (filters.heroType) params.heroType = filters.heroType;
+        if (filters.era) params.era = filters.era;
+        if (filters.region) params.region = filters.region;
+        if (filters.gender) params.gender = filters.gender;
+        if (filters.conditions && filters.conditions.length > 0) params.conditions = filters.conditions.join(',');
+        if (searchTerm) params.search = searchTerm;
+        params.limit = 100; // or whatever is reasonable for your UI
+        const res = await storiesAPI.getAll(params);
+        setStories(res.stories || []);
+        setTotal(res.total || 0);
+      } catch (err) {
+        setError(err.message || 'Failed to load stories');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStories();
+  }, [filters, searchTerm]);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -67,7 +91,6 @@ const StoriesPage = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -76,7 +99,6 @@ const StoriesPage = () => {
             Discover the authentic tales of India's greatest heroes and their incredible journeys.
           </p>
         </div>
-
         {/* Search and Filter Controls */}
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-1">
@@ -88,7 +110,6 @@ const StoriesPage = () => {
               className="pl-10"
             />
           </div>
-          
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -103,7 +124,6 @@ const StoriesPage = () => {
                 </Badge>
               )}
             </Button>
-            
             {getActiveFiltersCount() > 0 && (
               <Button
                 variant="ghost"
@@ -116,19 +136,25 @@ const StoriesPage = () => {
             )}
           </div>
         </div>
-
         {/* Results Info */}
         <div className="mb-6">
           <p className="text-gray-600 dark:text-gray-300">
-            Showing {filteredStories.length} of {stories.length} stories
-            {searchTerm && (
-              <span className="ml-1">
-                for "<span className="font-medium">{searchTerm}</span>"
-              </span>
+            {loading ? (
+              'Loading stories...'
+            ) : error ? (
+              <span className="text-red-500">{error}</span>
+            ) : (
+              <>
+                Showing {stories.length} of {total} stories
+                {searchTerm && (
+                  <span className="ml-1">
+                    for "<span className="font-medium">{searchTerm}</span>"
+                  </span>
+                )}
+              </>
             )}
           </p>
         </div>
-
         <div className="flex gap-8">
           {/* Filters Sidebar - Desktop */}
           <div className="hidden md:block w-80 flex-shrink-0">
@@ -140,7 +166,6 @@ const StoriesPage = () => {
               />
             </div>
           </div>
-
           {/* Mobile Filters */}
           {showFilters && (
             <div className="md:hidden fixed inset-0 z-50 bg-white overflow-y-auto dark:bg-gray-900">
@@ -162,13 +187,16 @@ const StoriesPage = () => {
               </div>
             </div>
           )}
-
           {/* Stories Grid */}
           <div className="flex-1">
-            {filteredStories.length > 0 ? (
+            {loading ? (
+              <div className="text-center py-12 text-gray-400">Loading stories...</div>
+            ) : error ? (
+              <div className="text-center py-12 text-red-500">{error}</div>
+            ) : stories.length > 0 ? (
               <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
-                {filteredStories.map((story) => (
-                  <StoryCard key={story.id} story={story} />
+                {stories.map((story) => (
+                  <StoryCard key={story._id || story.id} story={story} />
                 ))}
               </div>
             ) : (

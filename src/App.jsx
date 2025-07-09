@@ -4,6 +4,10 @@ import HomePage from '@/pages/HomePage';
 import StoriesPage from '@/pages/StoriesPage';
 import StoryDetailPage from '@/pages/StoryDetailPage';
 import AboutPage from '@/pages/AboutPage';
+import AdminLoginPage from '@/pages/AdminLoginPage';
+import AdminStoriesPage from '@/pages/AdminStoriesPage';
+import UnsubscribePage from '@/pages/UnsubscribePage';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 function App() {
   return (
@@ -13,8 +17,17 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/stories" element={<StoriesPage />} />
-            <Route path="/story/:id" element={<StoryDetailPage />} />
+            <Route path="/stories/:id" element={<StoryDetailPage />} />
+            {/* Optionally keep the old singular route for backward compatibility */}
+            {/* <Route path="/story/:id" element={<StoryDetailPage />} /> */}
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/admin/login" element={<AdminLoginPage />} />
+            <Route path="/admin" element={
+              <ProtectedRoute>
+                <AdminStoriesPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/unsubscribe" element={<UnsubscribePage />} />
           </Routes>
         </div>
       </Router>
