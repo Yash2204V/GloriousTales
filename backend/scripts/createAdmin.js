@@ -20,7 +20,7 @@ const createInitialAdmin = async () => {
     const admin = new Admin({
       username: 'admin',
       email: 'admin@glorioustales.com',
-      password: 'admin123', // This will be hashed by the pre-save hook
+      password: '123456qwertyQ!', // This will be hashed by the pre-save hook
       name: 'Super Admin',
       role: 'admin',
       isActive: true

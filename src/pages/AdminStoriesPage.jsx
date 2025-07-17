@@ -26,7 +26,10 @@ import {
   LogOut,
   Settings,
   Info,
-  HelpCircle
+  HelpCircle,
+  Copy,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { adminAPI, storiesAPI, commentsAPI, suggestionsAPI } from '@/utils/api';
@@ -359,7 +362,7 @@ const AdminStoriesPage = () => {
         birthYear: parseInt(previewForm.birthYear),
         deathYear: parseInt(previewForm.deathYear),
       };
-      data = await storiesAPI.adminCreate(storyPayload);
+        data = await storiesAPI.adminCreate(storyPayload);
       if (data) {
         toast({ title: 'Success', description: 'Story created successfully' });
         setShowStoryForm(false);
@@ -474,6 +477,37 @@ const AdminStoriesPage = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const exampleTemplate = `Title: The Brave Warrior
+Subtitle: A Tale of Courage
+Image URL: https://images.unsplash.com/photo-1605100804763-247f67b3557e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1587&q=80
+Hero Type: warrior
+Gender: male
+Birth Year: 1920
+Death Year: 1980
+Era: medieval
+Region: north
+Reading Time: 15 min
+Listening Time: 10 min
+Conditions: widow,paralyzed
+Description: This is a story about bravery and sacrifice.
+Historical Context: Set during the medieval wars of India.
+Chapters: [{"id":"1","title":"Intro","content":"This is the first chapter."}]
+Quotes: ["Courage is not the absence of fear.", "Bravery inspires generations."]
+Legacy: Inspired many to fight for justice.
+Modern Relevance: The story teaches us about standing up for what is right.
+Voice Narration Style: Deep, inspiring, and dramatic.
+Audio URL: 
+Publish: yes
+Featured: yes`;
+
+  const [showExample, setShowExample] = useState(false);
+  const exampleRef = useRef();
+  const handleCopyExample = () => {
+    if (exampleRef.current) {
+      navigator.clipboard.writeText(exampleTemplate);
     }
   };
 
@@ -632,17 +666,58 @@ const AdminStoriesPage = () => {
                   <div id="story-form-desc" className="sr-only">
                     Fill out the story details below using the template format. All fields are required unless marked optional.
                   </div>
-                  {/* Helper section for valid options */}
+                  {/* Helper section for valid options - visually enhanced */}
                   <div className="mb-4 p-3 bg-orange-50 dark:bg-gray-900 border border-orange-200 dark:border-gray-700 rounded text-sm text-gray-800 dark:text-gray-200">
                     <div className="mb-2 font-semibold">Valid Options:</div>
-                    <div className="mb-1"><span className="font-bold">Hero Type:</span> {heroTypes.map(ht => <span key={ht.id} className="inline-block mr-2">{ht.id} <span className="text-gray-500">({ht.label})</span></span>)}</div>
-                    <div className="mb-1"><span className="font-bold">Conditions:</span> {conditionOptions.map(c => <span key={c.id} className="inline-block mr-2">{c.id} <span className="text-gray-500">({c.label})</span></span>)}</div>
-                    <div className="mb-1"><span className="font-bold">Era:</span> {eras.map(e => <span key={e.id} className="inline-block mr-2">{e.id} <span className="text-gray-500">({e.label})</span></span>)}</div>
-                    <div><span className="font-bold">Region:</span> {regions.map(r => <span key={r.id} className="inline-block mr-2">{r.id} <span className="text-gray-500">({r.label})</span></span>)}</div>
-                  </div>
+                    <div className="mb-1 flex flex-wrap items-center"><span className="font-bold mr-2">Hero Type:</span> {heroTypes.map(ht => (
+                      <span key={ht.id} className="inline-flex items-center px-2 py-0.5 mr-2 mb-1 rounded bg-orange-100 dark:bg-gray-800 border border-orange-300 dark:border-gray-700 text-orange-800 dark:text-orange-200 text-xs font-medium">
+                        <span className="mr-1">{ht.icon}</span>{ht.id} <span className="ml-1 text-gray-500">({ht.label})</span>
+                      </span>
+                    ))}</div>
+                    <div className="mb-1 flex flex-wrap items-center"><span className="font-bold mr-2">Conditions:</span> {conditionOptions.map(c => (
+                      <span key={c.id} className="inline-flex items-center px-2 py-0.5 mr-2 mb-1 rounded bg-blue-100 dark:bg-gray-800 border border-blue-300 dark:border-gray-700 text-blue-800 dark:text-blue-200 text-xs font-medium">
+                        <span className="mr-1">{c.icon}</span>{c.id} <span className="ml-1 text-gray-500">({c.label})</span>
+                      </span>
+                    ))}</div>
+                    <div className="mb-1 flex flex-wrap items-center"><span className="font-bold mr-2">Era:</span> {eras.map(e => (
+                      <span key={e.id} className="inline-flex items-center px-2 py-0.5 mr-2 mb-1 rounded bg-green-100 dark:bg-gray-800 border border-green-300 dark:border-gray-700 text-green-800 dark:text-green-200 text-xs font-medium">
+                        {e.id} <span className="ml-1 text-gray-500">({e.label})</span>
+                      </span>
+                    ))}</div>
+                    <div className="flex flex-wrap items-center"><span className="font-bold mr-2">Region:</span> {regions.map(r => (
+                      <span key={r.id} className="inline-flex items-center px-2 py-0.5 mr-2 mb-1 rounded bg-purple-100 dark:bg-gray-800 border border-purple-300 dark:border-gray-700 text-purple-800 dark:text-purple-200 text-xs font-medium">
+                        {r.id} <span className="ml-1 text-gray-500">({r.label})</span>
+                      </span>
+                    ))}</div>
+                      </div>
+                  {/* Example template section */}
+                  <div className="mb-4">
+                    <button
+                      type="button"
+                      className="flex items-center text-xs text-orange-700 dark:text-orange-300 hover:underline mb-1"
+                      onClick={() => setShowExample(v => !v)}
+                      aria-expanded={showExample}
+                      aria-controls="example-template-block"
+                    >
+                      {showExample ? <ChevronUp className="w-4 h-4 mr-1" /> : <ChevronDown className="w-4 h-4 mr-1" />} Example Template
+                    </button>
+                    {showExample && (
+                      <div id="example-template-block" className="relative bg-gray-100 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded p-2">
+                        <pre ref={exampleRef} className="overflow-x-auto text-xs font-mono select-all whitespace-pre-wrap">{exampleTemplate}</pre>
+                        <button
+                          type="button"
+                          className="absolute top-2 right-2 p-1 rounded bg-orange-200 dark:bg-gray-700 text-orange-900 dark:text-orange-100 hover:bg-orange-300 dark:hover:bg-gray-600"
+                          title="Copy to clipboard"
+                          onClick={handleCopyExample}
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                    </div>
                   <div className="mb-2 text-sm text-gray-600 dark:text-gray-300">
                     Paste or fill the details below. Use the format shown. You can copy the template and fill in your values.
-                  </div>
+                      </div>
                   <Textarea
                     value={storyInput}
                     onChange={e => setStoryInput(e.target.value)}
@@ -652,7 +727,7 @@ const AdminStoriesPage = () => {
                   <div className="flex justify-between mt-4">
                     <Button type="button" variant="outline" onClick={() => setShowStoryForm(false)}>Cancel</Button>
                     <Button type="button" onClick={handleStoryInputPreview}>Preview</Button>
-                  </div>
+                    </div>
                   {showPreview && previewForm && (
                     <div className="mt-6 border-t pt-4">
                       <div className="font-bold mb-2">Preview</div>
@@ -688,7 +763,7 @@ const AdminStoriesPage = () => {
                       <Button size="sm" onClick={() => openStoryForm(story)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => navigate(`/story/${story._id}`)}>
+                      <Button size="sm" variant="outline" onClick={() => navigate(`/stories/${story._id}`)}>
                         <Eye className="h-4 w-4" />
                       </Button>
                     </div>

@@ -11,6 +11,8 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem('adminToken');
+
+      const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
       
       if (!token) {
         setIsAuthenticated(false);
@@ -19,7 +21,7 @@ const ProtectedRoute = ({ children }) => {
       }
 
       try {
-        const response = await fetch('http://localhost:5000/api/admin/profile', {
+        const response = await fetch(`${API_BASE_URL}/admin/profile`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }

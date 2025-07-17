@@ -11,6 +11,8 @@ const UnsubscribePage = () => {
   const [email, setEmail] = useState('');
   const { toast } = useToast();
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
   useEffect(() => {
     const emailParam = searchParams.get('email');
     if (emailParam) {
@@ -23,7 +25,7 @@ const UnsubscribePage = () => {
 
   const handleUnsubscribe = async (emailAddress) => {
     try {
-      const response = await fetch('http://localhost:5000/api/subscriptions/unsubscribe', {
+      const response = await fetch(`${API_BASE_URL}/subscriptions/unsubscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

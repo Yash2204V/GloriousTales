@@ -1,8 +1,8 @@
 export const heroTypes = [
-  { id: 'weapon', label: 'Warrior by Weapon', icon: '⚔️', description: 'Those who fought with sword and shield for freedom' },
-  { id: 'writing', label: 'Warrior by Writing', icon: '✍️', description: 'Revolutionary thinkers who used pen as their weapon' },
-  { id: 'revolt', label: 'Warrior by Revolt', icon: '🔥', description: 'Leaders who sparked uprisings against oppression' },
-  { id: 'words', label: 'Warrior by Words', icon: '💬', description: 'Spiritual giants who transformed minds through wisdom' },
+  { id: 'warrior', label: 'Warrior', icon: '⚔️', description: 'Those who fought with sword and shield for freedom' },
+  { id: 'writer', label: 'Writer', icon: '✍️', description: 'Revolutionary thinkers who used pen as their weapon' },
+  { id: 'rebel', label: 'Rebel', icon: '🔥', description: 'Leaders who sparked uprisings against oppression' },
+  { id: 'spiritual', label: 'Spiritual', icon: '💬', description: 'Spiritual giants who transformed minds through wisdom' },
 ];
 
 export const conditions = [
