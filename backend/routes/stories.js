@@ -270,6 +270,7 @@ router.post('/', verifyToken, async (req, res) => {
   try {
     const {
       title,
+      slug,
       subtitle,
       description,
       image,
@@ -295,7 +296,7 @@ router.post('/', verifyToken, async (req, res) => {
     
     // Validate required fields
     const requiredFields = [
-      'title', 'subtitle', 'description', 'image', 'heroType', 
+      'title','slug','subtitle', 'description', 'image', 'heroType', 
       'era', 'region', 'gender', 'birthYear', 'deathYear', 
       'readingTime', 'historicalContext', 'chapters', 'legacy'
     ];
@@ -320,6 +321,7 @@ router.post('/', verifyToken, async (req, res) => {
     
     const story = new Story({
       title: title.trim(),
+      slug: slug.trim(),
       subtitle: subtitle.trim(),
       description: description.trim(),
       image,

@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, X } from 'lucide-react';
 import { storiesAPI } from '@/utils/api';
+import Bottom from '../components/Bottom';
 
 const StoriesPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -220,6 +221,7 @@ const StoriesPage = () => {
           </div>
         </div>
       </div>
+      <Bottom />
     </div>
   );
 };

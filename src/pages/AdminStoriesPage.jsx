@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,12 +24,14 @@ import {
   BookOpen,
   BarChart3,
   LogOut,
-  Settings
+  Settings,
+  Info,
+  HelpCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { adminAPI, storiesAPI, commentsAPI, suggestionsAPI } from '@/utils/api';
 import Navigation from '@/components/Navigation';
-import { conditions as CONDITIONS_ENUM } from '@/data/stories';
+import { conditions as CONDITIONS_ENUM, heroTypes, eras, regions } from '@/data/stories';
 
 const conditionOptions = [
   { value: 'widow', label: 'Widow' },
@@ -39,6 +41,119 @@ const conditionOptions = [
   { value: 'caste-discrimination', label: 'Caste Discrimination' },
   { value: 'victim-violence', label: 'Victim of Violence' },
 ];
+
+// Add a helper for tooltips
+const Tooltip = ({ text }) => (
+  <span className="ml-1 text-gray-400 cursor-pointer group relative">
+    <HelpCircle className="inline w-4 h-4" />
+    <span className="absolute left-1/2 -translate-x-1/2 mt-2 w-48 bg-gray-800 text-white text-xs rounded p-2 opacity-0 group-hover:opacity-100 z-10 transition-opacity pointer-events-none">
+      {text}
+    </span>
+  </span>
+);
+
+// Multi-step form steps
+const steps = [
+  'Basic Info',
+  'Details',
+  'Content',
+  'Extras',
+  'Review'
+];
+
+const fieldGroups = [
+  // Step 1: Basic Info
+  [
+    { label: 'Title', name: 'title', required: true },
+    { label: 'Subtitle', name: 'subtitle', required: true },
+    { label: 'Image URL', name: 'image', required: true },
+    { label: 'Hero Type', name: 'heroType', required: true, type: 'select', options: [
+      { value: '', label: 'Select Type' },
+      { value: 'warrior', label: 'Warrior' },
+      { value: 'writer', label: 'Writer' },
+      { value: 'rebel', label: 'Rebel' },
+      { value: 'spiritual', label: 'Spiritual' },
+    ] },
+    { label: 'Gender', name: 'gender', required: true, type: 'select', options: [
+      { value: '', label: 'Select Gender' },
+      { value: 'male', label: 'Male' },
+      { value: 'female', label: 'Female' },
+    ] },
+  ],
+  // Step 2: Details
+  [
+    { label: 'Birth Year', name: 'birthYear', required: true, type: 'number' },
+    { label: 'Death Year', name: 'deathYear', required: true, type: 'number' },
+    { label: 'Era', name: 'era', required: true },
+    { label: 'Region', name: 'region', required: true },
+    { label: 'Reading Time', name: 'readingTime', required: true, placeholder: 'e.g., 15 min' },
+    { label: 'Listening Time', name: 'listeningTime', placeholder: 'e.g., 10 min' },
+    { label: 'Conditions', name: 'conditions', type: 'checkbox-group', options: conditionOptions },
+  ],
+  // Step 3: Content
+  [
+    { label: 'Description', name: 'description', required: true, type: 'textarea' },
+    { label: 'Historical Context', name: 'historicalContext', required: true, type: 'textarea' },
+    { label: 'Chapters (JSON array)', name: 'chapters', required: true, type: 'textarea', tooltip: 'Enter a JSON array of chapter objects. Example: [{"id":"1","title":"Intro","content":"..."}]' },
+    { label: 'Quotes (JSON array)', name: 'quotes', type: 'textarea', tooltip: 'Enter a JSON array of strings. Example: ["Quote 1", "Quote 2"]' },
+    { label: 'Legacy', name: 'legacy', required: true, type: 'textarea' },
+    { label: 'Modern Relevance', name: 'modernRelevance', type: 'textarea' },
+  ],
+  // Step 4: Extras
+  [
+    { label: 'Voice Narration Style', name: 'voiceNarrationStyle' },
+    { label: 'Audio URL', name: 'audioUrl', tooltip: 'Must be a valid URL or left blank.' },
+    { label: 'Publish immediately', name: 'isPublished', type: 'checkbox' },
+    { label: 'Featured', name: 'isFeatured', type: 'checkbox' },
+  ],
+];
+
+// Template for story input
+const storyTemplate = `Title: \nSubtitle: \nImage URL: \nHero Type: \nGender: \nBirth Year: \nDeath Year: \nEra: \nRegion: \nReading Time: \nListening Time: \nConditions: \nDescription: \nHistorical Context: \nChapters: \nQuotes: \nLegacy: \nModern Relevance: \nVoice Narration Style: \nAudio URL: \nPublish: \nFeatured: `;
+
+const parseStoryInput = (input) => {
+  const lines = input.split(/\r?\n/);
+  const data = {};
+  let currentKey = null;
+  for (let line of lines) {
+    if (/^\w[\w ]*:/i.test(line)) {
+      const idx = line.indexOf(':');
+      currentKey = line.slice(0, idx).trim();
+      data[currentKey] = line.slice(idx + 1).trim();
+    } else if (currentKey) {
+      data[currentKey] += '\n' + line.trim();
+    }
+  }
+  return data;
+};
+
+const mapParsedToStoryForm = (parsed) => {
+  return {
+    title: parsed['Title'] || '',
+    slug: '', // will be generated
+    subtitle: parsed['Subtitle'] || '',
+    description: parsed['Description'] || '',
+    image: parsed['Image URL'] || '',
+    heroType: parsed['Hero Type'] || '',
+    era: parsed['Era'] || '',
+    region: parsed['Region'] || '',
+    gender: parsed['Gender'] || '',
+    birthYear: parsed['Birth Year'] || '',
+    deathYear: parsed['Death Year'] || '',
+    readingTime: parsed['Reading Time'] || '',
+    listeningTime: parsed['Listening Time'] || '',
+    conditions: parsed['Conditions'] ? parsed['Conditions'].split(',').map(s => s.trim()).filter(Boolean) : [],
+    historicalContext: parsed['Historical Context'] || '',
+    chapters: parsed['Chapters'] ? (() => { try { return JSON.parse(parsed['Chapters']); } catch { return parsed['Chapters']; } })() : [],
+    quotes: parsed['Quotes'] ? (() => { try { return JSON.parse(parsed['Quotes']); } catch { return parsed['Quotes']; } })() : [],
+    legacy: parsed['Legacy'] || '',
+    modernRelevance: parsed['Modern Relevance'] || '',
+    voiceNarrationStyle: parsed['Voice Narration Style'] || '',
+    audioUrl: parsed['Audio URL'] || '',
+    isPublished: /yes|true|1/i.test(parsed['Publish'] || ''),
+    isFeatured: /yes|true|1/i.test(parsed['Featured'] || ''),
+  };
+};
 
 const AdminStoriesPage = () => {
   const [stories, setStories] = useState([]);
@@ -90,6 +205,9 @@ const AdminStoriesPage = () => {
     isFeatured: false
   };
   const [storyForm, setStoryForm] = useState(defaultStoryForm);
+  const [storyInput, setStoryInput] = useState(storyTemplate);
+  const [previewForm, setPreviewForm] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Utility to generate slug from title
   function generateSlug(title, existingSlugs = []) {
@@ -107,55 +225,101 @@ const AdminStoriesPage = () => {
     return slug;
   }
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [touched, setTouched] = useState({});
+  const formRef = useRef();
 
-  const fetchData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch all data in parallel
-      const [storiesData, commentsData, suggestionsData, statsData] = await Promise.all([
-        storiesAPI.adminGetAll(),
-        commentsAPI.adminGetAll(),
-        suggestionsAPI.adminGetAll(),
-        adminAPI.getDashboardStats()
-      ]);
-
-      setStories(storiesData.stories || []);
-      setComments(commentsData.comments || []);
-      setSuggestions(suggestionsData.suggestions || []);
-      setStats(statsData);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load admin data",
-        variant: "destructive"
-      });
-    } finally {
-      setIsLoading(false);
+  const validateStep = () => {
+    const group = fieldGroups[currentStep];
+    let error = '';
+    for (const field of group) {
+      if (field.required && !storyForm[field.name]) {
+        error = `${field.label} is required.`;
+        break;
+      }
+      if (field.name === 'audioUrl' && storyForm.audioUrl) {
+        try { new URL(storyForm.audioUrl); } catch { error = 'Audio URL must be a valid URL.'; break; }
+      }
+      if (field.name === 'chapters' && storyForm.chapters) {
+        try {
+          const chapters = typeof storyForm.chapters === 'string' ? JSON.parse(storyForm.chapters) : storyForm.chapters;
+          if (!Array.isArray(chapters)) throw new Error();
+        } catch { error = 'Chapters must be a valid JSON array.'; break; }
+      }
+      if (field.name === 'quotes' && storyForm.quotes) {
+        try {
+          const quotes = typeof storyForm.quotes === 'string' ? JSON.parse(storyForm.quotes) : storyForm.quotes;
+          if (!Array.isArray(quotes) || !quotes.every(q => typeof q === 'string')) throw new Error();
+        } catch { error = 'Quotes must be a valid JSON array of strings.'; break; }
+      }
     }
+    setFormError(error);
+    return !error;
   };
 
-  const handleInputChange = (e) => {
+  const handleNext = () => {
+    setTouched({ ...touched, [currentStep]: true });
+    if (validateStep()) setCurrentStep((s) => Math.min(s + 1, steps.length - 1));
+  };
+  const handlePrev = () => setCurrentStep((s) => Math.max(s - 1, 0));
+
+  const handleFieldChange = (e, field) => {
     const { name, value, type, checked } = e.target;
-    let newValue = type === 'checkbox' ? checked : value;
-    let updatedForm = { ...storyForm, [name]: newValue };
+    let updatedForm = { ...storyForm };
+    if (field.type === 'checkbox-group') {
+      const val = field.options.find(opt => `conditions-${opt.value}` === name)?.value;
+      if (checked) {
+        updatedForm.conditions = [...(updatedForm.conditions || []), val];
+      } else {
+        updatedForm.conditions = (updatedForm.conditions || []).filter(v => v !== val);
+      }
+    } else if (type === 'checkbox') {
+      updatedForm[name] = checked;
+    } else {
+      updatedForm[name] = value;
+    }
     if (name === 'title') {
-      // Generate unique slug from title
       const existingSlugs = stories.map(s => s.slug).filter(s => editingStory ? s !== editingStory.slug : true);
-      updatedForm.slug = generateSlug(newValue, existingSlugs);
+      updatedForm.slug = generateSlug(value, existingSlugs);
     }
     setStoryForm(updatedForm);
   };
 
-  const handleStorySubmit = async (e) => {
-    e.preventDefault();
+  const handleStoryInputPreview = () => {
+    const parsed = parseStoryInput(storyInput);
+    const mapped = mapParsedToStoryForm(parsed);
+    // Trim all string fields
+    Object.keys(mapped).forEach(key => {
+      if (typeof mapped[key] === 'string') {
+        mapped[key] = mapped[key].trim();
+      }
+    });
+    // Generate slug only if title is non-empty
+    if (!mapped.title) {
+      setFormError('Title is required and cannot be empty.');
+      setShowPreview(false);
+      return;
+    }
+    const existingSlugs = stories.map(s => s.slug);
+    mapped.slug = generateSlug(mapped.title, existingSlugs);
+    setPreviewForm(mapped);
+    setShowPreview(true);
+  };
+
+  const handleStoryInputSubmit = async () => {
     setFormError('');
-    // Validate chapters JSON
-    let chapters = storyForm.chapters;
-    let quotes = storyForm.quotes;
+    if (!previewForm) return;
+    // Validate required fields
+    const requiredFields = ['title','subtitle','description','image','heroType','era','region','gender','birthYear','deathYear','readingTime','historicalContext','chapters','legacy'];
+    for (const field of requiredFields) {
+      if (!previewForm[field] || (Array.isArray(previewForm[field]) && previewForm[field].length === 0)) {
+        setFormError(`${field.charAt(0).toUpperCase() + field.slice(1)} is required.`);
+        return;
+      }
+    }
+    // Validate chapters and quotes
+    let chapters = previewForm.chapters;
+    let quotes = previewForm.quotes;
     try {
       if (typeof chapters === 'string') {
         chapters = JSON.parse(chapters);
@@ -174,34 +338,36 @@ const AdminStoriesPage = () => {
       setFormError('Quotes must be a valid JSON array of strings.');
       return;
     }
-    // Validate Audio URL (optional, but if present must be a valid URL)
-    if (storyForm.audioUrl && storyForm.audioUrl !== '' && storyForm.audioUrl !== null) {
-      try {
-        new URL(storyForm.audioUrl);
-      } catch {
-        setFormError('Audio URL must be a valid URL or left blank.');
-        return;
-      }
+    // Validate Audio URL
+    if (previewForm.audioUrl && previewForm.audioUrl !== '' && previewForm.audioUrl !== null) {
+      try { new URL(previewForm.audioUrl); } catch { setFormError('Audio URL must be a valid URL or left blank.'); return; }
     }
     try {
       let data;
+      // Always generate slug from trimmed title
+      const existingSlugs = stories.map(s => s.slug);
+      const slug = generateSlug(previewForm.title.trim(), existingSlugs);
+      if (!slug) {
+        setFormError('Slug could not be generated. Please provide a valid title.');
+        return;
+      }
       const storyPayload = {
-        ...storyForm,
+        ...previewForm,
+        slug,
         chapters,
         quotes,
-        birthYear: parseInt(storyForm.birthYear),
-        deathYear: parseInt(storyForm.deathYear),
+        birthYear: parseInt(previewForm.birthYear),
+        deathYear: parseInt(previewForm.deathYear),
       };
-      if (editingStory) {
-        data = await storiesAPI.adminUpdate(editingStory._id, storyPayload);
-      } else {
-        data = await storiesAPI.adminCreate(storyPayload);
-      }
+      data = await storiesAPI.adminCreate(storyPayload);
       if (data) {
-        toast({ title: 'Success', description: editingStory ? 'Story updated successfully' : 'Story created successfully' });
+        toast({ title: 'Success', description: 'Story created successfully' });
         setShowStoryForm(false);
         setEditingStory(null);
         setStoryForm(defaultStoryForm);
+        setStoryInput(storyTemplate);
+        setPreviewForm(null);
+        setShowPreview(false);
         fetchData();
       } else {
         setFormError('Failed to save story.');
@@ -278,6 +444,37 @@ const AdminStoriesPage = () => {
       setStoryForm(defaultStoryForm);
     }
     setShowStoryForm(true);
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch all data in parallel
+      const [storiesData, commentsData, suggestionsData, statsData] = await Promise.all([
+        storiesAPI.adminGetAll(),
+        commentsAPI.adminGetAll(),
+        suggestionsAPI.adminGetAll(),
+        adminAPI.getDashboardStats()
+      ]);
+
+      setStories(storiesData.stories || []);
+      setComments(commentsData.comments || []);
+      setSuggestions(suggestionsData.suggestions || []);
+      setStats(statsData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load admin data",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (isLoading) {
@@ -433,142 +630,43 @@ const AdminStoriesPage = () => {
                 </DialogTrigger>
                 <DialogContent aria-describedby="story-form-desc" className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <div id="story-form-desc" className="sr-only">
-                    Fill out the story details below. All fields are required unless marked optional.
+                    Fill out the story details below using the template format. All fields are required unless marked optional.
                   </div>
-                  <DialogHeader>
-                    <DialogTitle>
-                      {editingStory ? 'Edit Story' : 'Add New Story'}
-                    </DialogTitle>
-                  </DialogHeader>
-                  <form onSubmit={handleStorySubmit} className="space-y-4">
-                    {formError && <div className="text-red-600 font-medium mb-2">{formError}</div>}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Title</label>
-                        <Input value={storyForm.title} onChange={handleInputChange} name="title" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Subtitle</label>
-                        <Input value={storyForm.subtitle} onChange={handleInputChange} name="subtitle" required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Image URL</label>
-                        <Input value={storyForm.image} onChange={handleInputChange} name="image" required />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Description</label>
-                      <Textarea value={storyForm.description} onChange={handleInputChange} name="description" rows={3} required />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Hero Type</label>
-                        <select value={storyForm.heroType} onChange={handleInputChange} name="heroType" className="w-full p-2 border rounded-md" required>
-                          <option value="">Select Type</option>
-                          <option value="warrior">Warrior</option>
-                          <option value="writer">Writer</option>
-                          <option value="rebel">Rebel</option>
-                          <option value="spiritual">Spiritual</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Gender</label>
-                        <select value={storyForm.gender} onChange={handleInputChange} name="gender" className="w-full p-2 border rounded-md" required>
-                          <option value="">Select Gender</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Birth Year</label>
-                        <Input type="number" value={storyForm.birthYear} onChange={handleInputChange} name="birthYear" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Death Year</label>
-                        <Input type="number" value={storyForm.deathYear} onChange={handleInputChange} name="deathYear" required />
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Era</label>
-                        <Input value={storyForm.era} onChange={handleInputChange} name="era" required />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1">Region</label>
-                        <Input value={storyForm.region} onChange={handleInputChange} name="region" required />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Reading Time</label>
-                      <Input value={storyForm.readingTime} onChange={handleInputChange} name="readingTime" placeholder="e.g., 15 min" required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Listening Time</label>
-                      <Input value={storyForm.listeningTime} onChange={handleInputChange} name="listeningTime" placeholder="e.g., 10 min" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Conditions</label>
-                      <div className="flex flex-wrap gap-4">
-                        {conditionOptions.map(opt => (
-                          <label key={opt.value} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              checked={storyForm.conditions.includes(opt.value)}
-                              onChange={handleInputChange}
-                              name={`conditions-${opt.value}`}
-                            />
-                            <span>{opt.label}</span>
-                          </label>
+                  {/* Helper section for valid options */}
+                  <div className="mb-4 p-3 bg-orange-50 dark:bg-gray-900 border border-orange-200 dark:border-gray-700 rounded text-sm text-gray-800 dark:text-gray-200">
+                    <div className="mb-2 font-semibold">Valid Options:</div>
+                    <div className="mb-1"><span className="font-bold">Hero Type:</span> {heroTypes.map(ht => <span key={ht.id} className="inline-block mr-2">{ht.id} <span className="text-gray-500">({ht.label})</span></span>)}</div>
+                    <div className="mb-1"><span className="font-bold">Conditions:</span> {conditionOptions.map(c => <span key={c.id} className="inline-block mr-2">{c.id} <span className="text-gray-500">({c.label})</span></span>)}</div>
+                    <div className="mb-1"><span className="font-bold">Era:</span> {eras.map(e => <span key={e.id} className="inline-block mr-2">{e.id} <span className="text-gray-500">({e.label})</span></span>)}</div>
+                    <div><span className="font-bold">Region:</span> {regions.map(r => <span key={r.id} className="inline-block mr-2">{r.id} <span className="text-gray-500">({r.label})</span></span>)}</div>
+                  </div>
+                  <div className="mb-2 text-sm text-gray-600 dark:text-gray-300">
+                    Paste or fill the details below. Use the format shown. You can copy the template and fill in your values.
+                  </div>
+                  <Textarea
+                    value={storyInput}
+                    onChange={e => setStoryInput(e.target.value)}
+                    rows={20}
+                    className="w-full font-mono"
+                  />
+                  <div className="flex justify-between mt-4">
+                    <Button type="button" variant="outline" onClick={() => setShowStoryForm(false)}>Cancel</Button>
+                    <Button type="button" onClick={handleStoryInputPreview}>Preview</Button>
+                  </div>
+                  {showPreview && previewForm && (
+                    <div className="mt-6 border-t pt-4">
+                      <div className="font-bold mb-2">Preview</div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                        {Object.entries(previewForm).map(([key, val]) => (
+                          <div key={key}><span className="font-semibold">{key}:</span> {Array.isArray(val) ? JSON.stringify(val) : String(val)}</div>
                         ))}
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Historical Context</label>
-                      <Textarea value={storyForm.historicalContext} onChange={handleInputChange} name="historicalContext" rows={3} required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Chapters (JSON array)</label>
-                      <Textarea value={typeof storyForm.chapters === 'string' ? storyForm.chapters : JSON.stringify(storyForm.chapters, null, 2)} onChange={handleInputChange} name="chapters" rows={4} placeholder='[{"id":"1","title":"Intro","content":"..."}]' />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Quotes (JSON array)</label>
-                      <Textarea value={typeof storyForm.quotes === 'string' ? storyForm.quotes : JSON.stringify(storyForm.quotes, null, 2)} onChange={handleInputChange} name="quotes" rows={2} placeholder='["Quote 1", "Quote 2"]' />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Legacy</label>
-                      <Textarea value={storyForm.legacy} onChange={handleInputChange} name="legacy" rows={3} required />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Modern Relevance</label>
-                      <Textarea value={storyForm.modernRelevance} onChange={handleInputChange} name="modernRelevance" rows={2} />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Voice Narration Style</label>
-                      <Input value={storyForm.voiceNarrationStyle} onChange={handleInputChange} name="voiceNarrationStyle" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Audio URL</label>
-                      <Input value={storyForm.audioUrl} onChange={handleInputChange} name="audioUrl" />
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="isPublished" checked={storyForm.isPublished} onChange={handleInputChange} name="isPublished" />
-                        <label htmlFor="isPublished" className="text-sm font-medium">Publish immediately</label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <input type="checkbox" id="isFeatured" checked={storyForm.isFeatured} onChange={handleInputChange} name="isFeatured" />
-                        <label htmlFor="isFeatured" className="text-sm font-medium">Featured</label>
+                      {formError && <div className="text-red-600 font-medium mb-2">{formError}</div>}
+                      <div className="flex justify-end mt-2">
+                        <Button type="button" onClick={handleStoryInputSubmit}>Submit</Button>
                       </div>
                     </div>
-                    <div className="flex justify-end space-x-2">
-                      <Button type="button" variant="outline" onClick={() => setShowStoryForm(false)}>Cancel</Button>
-                      <Button type="submit">{editingStory ? 'Update Story' : 'Create Story'}</Button>
-                    </div>
-                  </form>
+                  )}
                 </DialogContent>
               </Dialog>
             </div>

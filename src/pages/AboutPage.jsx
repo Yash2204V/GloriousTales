@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { Heart, Target, Users, BookOpen, Award, Crown, Scroll, Flame, Sword, MessageCircle } from 'lucide-react';
+import Bottom from '../components/Bottom';
 
 const AboutPage = () => {
   return (
@@ -312,6 +313,7 @@ const AboutPage = () => {
           </Link>
         </div>
       </div>
+      <Bottom />
     </div>
   );
 };

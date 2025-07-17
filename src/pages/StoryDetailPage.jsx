@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { heroTypes, conditions, eras, regions } from '@/data/stories';
 import { storiesAPI } from '@/utils/api';
+import Bottom from '../components/Bottom';
 
 const StoryDetailPage = () => {
   const { id } = useParams();
@@ -420,6 +421,7 @@ const StoryDetailPage = () => {
           isVisible={showAudioPlayer}
         />
       )}
+      <Bottom />
     </div>
   );
 };

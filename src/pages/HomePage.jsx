@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Crown, Heart, Star, Users, BookOpen, Award, Scroll, Headphones } from 'lucide-react';
 import { heroTypes } from '@/data/stories';
 import { storiesAPI } from '@/utils/api';
+import Bottom from '../components/Bottom';
 
 const HomePage = () => {
   const [featuredStories, setFeaturedStories] = useState([]);
@@ -32,7 +33,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
-      
+
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-600 via-red-600 to-yellow-600 opacity-10"></div>
@@ -41,26 +42,26 @@ const HomePage = () => {
             <Crown className="h-4 w-4" />
             <span>Authentic Stories of India's Greatest Heroes</span>
           </div>
-          
+
           <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight dark:text-white">
             Glorious Tales
             <span className="block text-3xl md:text-5xl bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
               Stories of Grit & Glory
             </span>
           </h1>
-          
+
           <p className="text-xl text-gray-700 mb-6 max-w-3xl mx-auto leading-relaxed dark:text-gray-300">
-            Experience the raw, unfiltered stories of India's freedom fighters, spiritual giants, 
+            Experience the raw, unfiltered stories of India's freedom fighters, spiritual giants,
             revolutionaries, and wisdom legends. Stories that give them the justice they deserve.
           </p>
 
           <div className="bg-orange-50 p-6 rounded-lg border-l-4 border-orange-600 mb-8 max-w-4xl mx-auto dark:bg-orange-900/20 dark:border-orange-400">
             <p className="text-lg italic text-orange-800 dark:text-orange-200">
-              "This is not just storytelling — this is a mirror of time. Let people walk with those 
+              "This is not just storytelling — this is a mirror of time. Let people walk with those
               who bled for truth, wrote in fire, and died unheard."
             </p>
           </div>
-          
+
           <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-4">
             <Link to="/stories">
               <Button size="lg" className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3">
@@ -88,7 +89,7 @@ const HomePage = () => {
               We tell the complete truth - the pain, the struggle, the brutal reality, and the unshakable resolve.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <Card className="text-center group hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
@@ -101,7 +102,7 @@ const HomePage = () => {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center group hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors dark:bg-orange-900 dark:group-hover:bg-orange-800">
@@ -113,7 +114,7 @@ const HomePage = () => {
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card className="text-center group hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-4 group-hover:bg-orange-200 transition-colors dark:bg-orange-900 dark:group-hover:bg-orange-800">
@@ -141,7 +142,7 @@ const HomePage = () => {
               Every story follows a consistent emotional structure that creates deep connection.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { step: 1, title: "Historical Context", desc: "The era, social conditions, and prevailing mindset" },
@@ -174,7 +175,7 @@ const HomePage = () => {
               Each fought in their own way, with their own weapons of choice.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {heroTypes.map((type) => (
               <Link key={type.id} to={`/stories?heroType=${type.id}`}>
@@ -210,7 +211,7 @@ const HomePage = () => {
               </Button>
             </Link>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
               <div className="col-span-3 text-center py-12 text-gray-400">Loading featured stories...</div>
@@ -228,11 +229,10 @@ const HomePage = () => {
       </section>
 
       {/* Subscription Section */}
-      <section className="py-16 px-4 bg-white dark:bg-gray-900">
-        <div className="max-w-4xl mx-auto text-center">
-          <SubscriptionForm />
-        </div>
-      </section>
+      <div className='max-w-4xl mx-auto text-center py-12'>
+        <SubscriptionForm />
+      </div>
+      <Bottom />
     </div>
   );
 };
