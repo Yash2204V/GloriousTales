@@ -1,8 +1,37 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Crown, BookOpen, Info, Home, Sun, Moon } from 'lucide-react';
+import { Menu, X, Crown, BookOpen, Info, Home, Sun, Moon, Monitor } from 'lucide-react';
 import { useTheme } from '@/components/theme-provider';
+
+const ThemeToggle = () => {
+  const { theme, setTheme } = useTheme();
+  return (
+    <div className="flex items-center space-x-2">
+      <button
+        className={`p-2 rounded ${theme === 'light' ? 'bg-orange-200' : ''}`}
+        title="Light mode"
+        onClick={() => setTheme('light')}
+      >
+        <Sun className="w-4 h-4" />
+      </button>
+      <button
+        className={`p-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-yellow-300' : ''}`}
+        title="Dark mode"
+        onClick={() => setTheme('dark')}
+      >
+        <Moon className="w-4 h-4" />
+      </button>
+      <button
+        className={`p-2 rounded ${theme === 'system' ? 'bg-gray-700 text-yellow-300' : ''}`}
+        title="System mode"
+        onClick={() => setTheme('system')}
+      >
+        <Monitor className="w-4 h-4" />
+      </button>
+    </div>
+  );
+};
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,18 +80,7 @@ const Navigation = () => {
             })}
             
             {/* Theme Toggle */}
-            {/* <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-              className="text-gray-700 hover:text-orange-600 dark:text-gray-300 dark:hover:text-orange-400"
-            >
-              {theme === 'light' ? (
-                <Moon className="h-4 w-4" />
-              ) : (
-                <Sun className="h-4 w-4" />
-              )}
-            </Button> */}
+            <ThemeToggle />
           </div>
 
           {/* Mobile menu button and theme toggle */}
