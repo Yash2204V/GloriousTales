@@ -25,4 +25,4 @@ dist-ssr
 *.sln
 *.sw?
 
-./backend/scripts/
+Manual.md
